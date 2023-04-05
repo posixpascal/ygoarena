@@ -1,0 +1,260 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // postgres is also supported
+  url      = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+// Necessary for Next auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  binders       Binder[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Binder {
+  id            String    @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  isHidden Boolean        @default(true)
+  cards    CardInBinder[]
+}
+
+model CardInBinder {
+  card     Card   @relation(fields: [cardId], references: [id])
+  cardId   String
+  binder   Binder @relation(fields: [binderId], references: [id])
+  binderId String
+
+  @@id([binderId, cardId])
+}
+
+model Card {
+  id            String    @id @default(cuid())
+  konamiId Int @unique
+
+  name String
+  desc String
+
+  type String // for postgres you may use enums: CardType
+  frame String // for postgres you may use enums: CardFrame
+
+  atk Int?
+  def Int?
+  level Int?
+  race String? // for postgres you may use enums: CardRace?
+  attribute String? // for postgres you may use enums: CardAttribute?
+
+  image        String
+  imageCropped String
+  sets      CardsInCardSet[]
+  binders   CardInBinder[]
+}
+
+model CardSet {
+  id            String    @id @default(cuid())
+  name  String
+  code  String
+  cards CardsInCardSet[]
+
+  @@unique([name, code])
+}
+
+model CardsInCardSet {
+  card   Card @relation(fields: [cardId], references: [id])
+  cardId String
+
+  cardSet   CardSet @relation(fields: [cardSetId], references: [id])
+  cardSetId String
+
+  rarity     String
+  rarityCode String
+  price      String
+
+  @@id([cardSetId, cardId])
+}
+
+// For Postgres you may use enums:
+// enum CardAttribute {
+//     DARK
+//     DIVINE
+//     EARTH
+//     FIRE
+//     LIGHT
+//     WATER
+//     WIND
+// }
+//
+// enum CardType {
+//     NORMAL_MONSTER
+//     EFFECT_MONSTER
+//     FLIP_EFFECT_MONSTER
+//     FUSION_MONSTER
+//     GEMINI_MONSTER
+//     LINK_MONSTER
+//     NORMAL_TUNER_MONSTER
+//     PENDULUM_EFFECT_MONSTER
+//     PENDULUM_EFFECT_FUSION_MONSTER
+//     PENDULUM_EFFECT_RITUAL_MONSTER
+//     PENDULUM_FLIP_EFFECT_MONSTER
+//     PENDULUM_NORMAL_MONSTER
+//     PENDULUM_TUNER_EFFECT_MONSTER
+//     RITUAL_EFFECT_MONSTER
+//     RITUAL_MONSTER
+//     SKILL_CARD
+//     SPELL_CARD
+//     SPIRIT_MONSTER
+//     SYNCHRO_MONSTER
+//     SYNCHRO_PENDULUM_EFFECT_MONSTER
+//     SYNCHRO_TUNER_MONSTER
+//     TOKEN
+//     TOON_MONSTER
+//     TRAP_CARD
+//     TUNER_MONSTER
+//     UNION_EFFECT_MONSTER
+//     XYZ_MONSTER
+//     XYZ_PENDULUM_EFFECT_MONSTER
+// }
+//
+// enum CardRace {
+//     NONE // for ""
+//     // Monsters
+//     AQUA
+//     BEAST
+//     BEAST_WARRIOR
+//     CREATOR_GOD // hello holactie
+//     CYBERSE
+//     DINOSAUR
+//     DIVINE_BEAST
+//     DRAGON
+//     FAIRY
+//     FIEND
+//     FISH
+//     INSECT
+//     MACHINE
+//     PLANT
+//     PSYCHIC
+//     PYRO
+//     REPTILE
+//     ROCK
+//     SEA_SERPENT
+//     SPELLCASTER
+//     THUNDER
+//     WARRIOR
+//     WINGED_BEAST
+//     WYRM
+//     ZOMBIE
+//
+//     // Spells/Trap
+//     NORMAL
+//     QUICK_PLAY
+//     RITUAL
+//     CONTINIOUS
+//     COUNTER
+//     EQUIP
+//     FIELD
+//
+//     // CHARACTERS
+//     CHAR_ALEXIS_RHODES
+//     CHAR_ANDREW
+//     CHAR_ARKANA
+//     CHAR_ASTER_PHOENIX
+//     CHAR_AXEL_BRODIE
+//     CHAR_BASTION_MISAW
+//     CHAR_BONZ
+//     CHAR_CHAZZ_PRINCET
+//     CHAR_CHRISTINE
+//     CHAR_CHUMLEY_HIFFI
+//     CHAR_DAVID
+//     CHAR_EMMA
+//     CHAR_ESPA_ROBA
+//     CHAR_ISHIZU_ISHTAR
+//     CHAR_ISHIZU
+//     CHAR_JADEN_YUKI
+//     CHAR_JESSE_ANDERSO
+//     CHAR_JOEY_WHEELER
+//     CHAR_KAIBA
+//     CHAR_KEITH
+//     CHAR_LUMIS_UMBRA
+//     CHAR_MAI_VALENTINE
+//     CHAR_ODION
+//     CHAR_MAKO
+//     CHAR_PARADOX_BROTHERS
+//     CHAR_PEGASUS
+//     CHAR_SYRUS_TRUESDA
+//     CHAR_TEA_GARDNER
+//     CHAR_TYRANNO_HASSL
+//     CHAR_WEEVIL
+//     CHAR_YAMI_BAKURA
+//     CHAR_YAMI_MARIK
+//     CHAR_YAMI_YUGI
+//     CHAR_YUBEL
+//     CHAR_YUGI
+//     CHAR_ZANE_TRUESDALE
+// }
+//
+// enum CardFrame {
+//     EFFECT
+//     EFFECT_PENDULUM
+//     FUSION
+//     FUSION_PENDULUM
+//     LINK
+//     NORMAL
+//     NORMAL_PENDULUM
+//     RITUAL
+//     RITUAL_PENDULUM
+//     SKILL
+//     SPELL
+//     SYNCHRO
+//     SYNCHRO_PENDULUM
+//     TOKEN
+//     TRAP
+//     XYZ
+//     XYZ_PENDULUM
+// }
