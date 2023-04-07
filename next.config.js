@@ -20,6 +20,12 @@ const nextConfig = {
         port: '',
         pathname: '/images/cards/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.ygoprodeck.com',
+        port: '',
+        pathname: '/images/sets/**',
+      },
     ],
   },
 

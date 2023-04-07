@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite" // postgres is also supported
-  url      = env("DATABASE_URL")
+  provider          = "sqlite" // postgres is also supported
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
@@ -46,7 +46,6 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  binders       Binder[]
 }
 
 model VerificationToken {
@@ -58,11 +57,7 @@ model VerificationToken {
 }
 
 model Binder {
-  id            String    @id @default(cuid())
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
-
-  isHidden Boolean        @default(true)
+  id     String @id @default(cuid())
   cards    CardInBinder[]
 }
 
@@ -76,29 +71,29 @@ model CardInBinder {
 }
 
 model Card {
-  id            String    @id @default(cuid())
-  konamiId Int @unique
+  id       String @id @default(cuid())
+  konamiId Int    @unique
 
   name String
   desc String
 
-  type String // for postgres you may use enums: CardType
+  type  String // for postgres you may use enums: CardType
   frame String // for postgres you may use enums: CardFrame
 
-  atk Int?
-  def Int?
-  level Int?
-  race String? // for postgres you may use enums: CardRace?
+  atk       Int?
+  def       Int?
+  level     Int?
+  race      String? // for postgres you may use enums: CardRace?
   attribute String? // for postgres you may use enums: CardAttribute?
 
   image        String
   imageCropped String
-  sets      CardsInCardSet[]
-  binders   CardInBinder[]
+  sets         CardsInCardSet[]
+  binders      CardInBinder[]
 }
 
 model CardSet {
-  id            String    @id @default(cuid())
+  id    String           @id @default(cuid())
   name  String
   code  String
   cards CardsInCardSet[]
@@ -107,7 +102,7 @@ model CardSet {
 }
 
 model CardsInCardSet {
-  card   Card @relation(fields: [cardId], references: [id])
+  card   Card   @relation(fields: [cardId], references: [id])
   cardId String
 
   cardSet   CardSet @relation(fields: [cardSetId], references: [id])

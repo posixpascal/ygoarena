@@ -5,8 +5,8 @@ import {trpc} from "@/utils/trpc";
 import {Container} from "@/components/Container";
 import React from "react";
 import {RandomCard} from "@/components/RandomCard";
+import {RandomSet} from "@/components/RandomSet";
 
-const inter = Inter({ subsets: ['latin'] })
 
 export default function Home() {
   return (
