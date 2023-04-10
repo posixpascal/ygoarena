@@ -1,6 +1,5 @@
 import {trpc} from "@/utils/trpc";
 import React from "react";
-import {Card} from "@/components/Card";
 import {CardSet} from "@/components/CardSet";
 
 export const RandomSet = () => {

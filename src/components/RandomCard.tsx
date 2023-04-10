@@ -1,9 +1,9 @@
 import {trpc} from "@/utils/trpc";
 import React from "react";
-import {Card} from "@/components/Card";
+import { CardContainer } from "./CardContainer";
 
 export const RandomCard = () => {
-    const card = trpc.cards.random.useQuery();
+    const card = trpc.cards.random.useQuery({ amount: 1 });
 
     if (card.isLoading){
         return <div>
@@ -15,5 +15,5 @@ export const RandomCard = () => {
         return <div>Keine Karten gefunden.</div>
     }
 
-    return <Card card={card.data!} />
+    return <CardContainer card={card.data![0]} />
 }

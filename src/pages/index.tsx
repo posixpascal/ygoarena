@@ -5,6 +5,7 @@ import {trpc} from "@/utils/trpc";
 import {Container} from "@/components/Container";
 import React from "react";
 import {RandomCard} from "@/components/RandomCard";
+import {RandomCards} from "@/components/RandomCards";
 import {RandomSet} from "@/components/RandomSet";
 
 
@@ -16,7 +17,7 @@ export default function Home() {
       </Head>
       <main >
         <Container>
-            <RandomCard />
+          <RandomCards />
         </Container>
       </main>
     </>
