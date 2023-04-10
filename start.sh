@@ -1,0 +1,2 @@
+code .
+pnpm run dev
