@@ -17,7 +17,7 @@ export default function Home() {
       </Head>
       <main >
         <Container>
-          <RandomCards />
+          <RandomCard />
         </Container>
       </main>
     </>

@@ -295,6 +295,7 @@ interface ProDeckCard {
     race?: ProDeckCardRace,
     type: ProDeckCardType,
     frameType: ProDeckFrameType,
+    attribute: ProDeckCardAttribute,
     atk?: number,
     def?: number,
     level?: number,
@@ -343,6 +344,7 @@ interface ProDeckResponse {
                 type: TYPE_MAPPING[proDeckCard.type],
                 frame: FRAME_MAPPING[proDeckCard.frameType],
                 race: RACE_MAPPING[proDeckCard.race ?? ""],
+                attribute: ATTRIBUTE_MAPPING[proDeckCard.attribute] ?? null,
 
                 atk: proDeckCard.atk,
                 def: proDeckCard.def,

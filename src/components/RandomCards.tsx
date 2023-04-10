@@ -1,12 +1,19 @@
 import {trpc} from "@/utils/trpc";
 import {Card} from "@/components/Card";
+import {useState} from "react";
+import {useRouter} from "next/router";
+import {useSearchParams} from "next/navigation";
 
 export const RandomCards = () => {
-    let cards = trpc.cards.random.useQuery({ amount: 4 });
+    const {query} = useRouter();
+    console.log(query);
+    const [setIDs, setSetIDs] = useState<number[]>([]);
+    const cards = trpc.cards.random.useQuery({ amount: 4, setIDs: setIDs });
     
     const handleClick = async () => {
-        const setIDs: number[] = []; // TODO: Fetch sets and add IDs to setIDs...
-        cards = trpc.cards.random.useQuery({ amount: 4, setIDs: setIDs }); // TODO: Fix "hook not inside body of function component" error
+        //const setIDs: number[] = []; // TODO: Fetch sets and add IDs to setIDs...
+        //cards = trpc.cards.random.useQuery({ amount: 4, setIDs: setIDs }); // TODO: Fix "hook not inside body of function component" error
+        setSetIDs([...setIDs, 1])
     };
 
     if (cards.isLoading){
