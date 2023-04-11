@@ -94,11 +94,11 @@ model Card {
 
 model CardSet {
   id    String           @id @default(cuid())
-  name  String
-  code  String
+  name  String @unique
+  code String
+  image String @default("")
   cards CardsInCardSet[]
 
-  @@unique([name, code])
 }
 
 model CardsInCardSet {

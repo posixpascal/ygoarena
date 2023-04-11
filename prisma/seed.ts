@@ -366,10 +366,7 @@ interface ProDeckResponse {
     for await (const proDeckSet of sets){
         const isKnownSet = await prisma.cardSet.findUnique({
             where: {
-                name_code: {
-                    name: proDeckSet.set_name,
-                    code: proDeckSet.set_code
-                },
+                name: proDeckSet.set_name,
             }
         });
 
@@ -380,7 +377,7 @@ interface ProDeckResponse {
         await prisma.cardSet.create({
             data: {
                 name: proDeckSet.set_name,
-                code: proDeckSet.set_code
+                code: proDeckSet.set_code.split('-')[0]
             }
         });
         console.info("ADD SET", proDeckSet.set_name);
@@ -402,10 +399,7 @@ interface ProDeckResponse {
         for await (const proDeckSet of proDeckCard.card_sets) {
             const prismaSet = await prisma.cardSet.findUnique({
                 where: {
-                    name_code: {
-                        name: proDeckSet.set_name,
-                        code: proDeckSet.set_code
-                    },
+                    name: proDeckSet.set_name,
                 }
             });
 
