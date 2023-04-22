@@ -5,31 +5,41 @@ import { Card } from "@prisma/client";
 
 export const cardsRouter = router({
     random: publicProcedure
-        .input(z.object({ amount: z.number().optional(), setIDs: z.number().array().optional() }))
-        .query(async ({ input: { amount = 1, setIDs = [] } }) => {
-        return getRandomCards(amount);
+        .input(z.object({
+            amount: z.number().optional(),
+            cardSets: z.string().cuid().array().optional()
+        }))
+        .query(async ({ input: { amount = 1, cardSets = [] } }) => {
+        return getRandomCards(amount, cardSets);
     })
 });
 
-const getRandomCards = async (amount: number, setIDs: number[] = []): Promise<Card[]> => {
-    const cards = await prisma.card.findMany({
-        take: 30, // TODO: Replace with "prisma.cardsInCardSet.length"
+const getRandomCards = async (amount: number, cardSets: string[] = []): Promise<Card[]> => {
+    const cards = await prisma.cardsInCardSet.findMany({
+        where: {
+            cardSetId: {
+                in: cardSets
+            }
+        }
     });
-    return getRandomEntries(cards, amount);
-}
 
-const getRandomEntries = (array: any[], amount: number) => {
-    const randomCards = [];
-    const maxIndex = array.length - 1;
+    const randomCardIds = [];
+    const maxIndex = cards.length - 1;
     const usedIndexes = new Set();
 
-    while (randomCards.length < amount && randomCards.length < array.length) {
+    while (randomCardIds.length < amount && randomCardIds.length < cards.length) {
         const randomIndex = Math.floor(Math.random() * (maxIndex + 1));
         if (!usedIndexes.has(randomIndex)) {
-            randomCards.push(array[randomIndex]);
+            randomCardIds.push(cards[randomIndex].cardId);
             usedIndexes.add(randomIndex);
         }
     }
 
-    return randomCards;
+    return await prisma.card.findMany({
+        where: {
+            id: {
+                in: randomCardIds
+            }
+        }
+    })
 }

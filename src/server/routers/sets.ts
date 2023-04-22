@@ -59,15 +59,16 @@ export const setsRouter = router({
                 }
             },
             select: {
-                name: true
+                id: true,
+                name: true,
+                image: true,
+                _count: true
             }
         });
 
-        const names = sets.map(set => set.name);
-
         return {
             totalCards,
-            names
+            sets
         }
     }),
     details: publicProcedure.input(z.object({

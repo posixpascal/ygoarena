@@ -1,6 +1,5 @@
 // Extract images from prisma and save them for later
 import {prisma} from "@/server/prisma";
-import {CardAttribute, CardFrame, CardRace, CardType} from '@prisma/client';
 import fs from 'fs/promises';
 import * as path from "path";
 import fetch from 'node-fetch';
@@ -34,26 +33,30 @@ const downloadBatch = async (skip: number, take: number, total: number) => {
             path.join(outputDir)
         );
 
+        try {
+            await fs.lstat(outputFile);
+            await fs.lstat(outputFileCropped);
+        } catch (e) {
+            let request = await fetch(card.image);
+            let imageBlob = await request.arrayBuffer();
+            let image = Buffer.from(imageBlob);
+            await fs.writeFile(outputFile, image, 'utf-8');
 
-        let request = await fetch(card.image);
-        let imageBlob = await request.arrayBuffer();
-        let image = Buffer.from(imageBlob);
-        await fs.writeFile(outputFile, image, 'utf-8');
-
-        request = await fetch(card.imageCropped);
-        imageBlob = await request.arrayBuffer();
-        image = Buffer.from(imageBlob);
-        await fs.writeFile(outputFileCropped, image, 'utf-8');
-
-        await prisma.card.update({
-            where: {
-                id: card.id,
-            },
-            data: {
-                image: '/cards/' + card.konamiId + '/original.png',
-                imageCropped: '/cards/' + card.konamiId + '/cropped.png',
-            }
-        })
+            request = await fetch(card.imageCropped);
+            imageBlob = await request.arrayBuffer();
+            image = Buffer.from(imageBlob);
+            await fs.writeFile(outputFileCropped, image, 'utf-8');
+        } finally {
+            await prisma.card.update({
+                where: {
+                    id: card.id,
+                },
+                data: {
+                    image: '/cards/' + card.konamiId + '/original.png',
+                    imageCropped: '/cards/' + card.konamiId + '/cropped.png',
+                }
+            })
+        }
     }
 }
 
@@ -65,10 +68,6 @@ const downloadSetBatch = async (skip: number, take: number, total: number) => {
 
     console.info("--- Batch start ", skip + take, '/', total);
     for await (const set of sets){
-        if (set.image){
-            continue;
-        }
-
         const outputDir = SET_OUTPUT_DIR + '/' + set.code;
         const outputFile = path.join(outputDir, 'cover.png')
 
@@ -76,20 +75,24 @@ const downloadSetBatch = async (skip: number, take: number, total: number) => {
             path.join(outputDir)
         );
 
-
-        let request = await fetch(`https://images.ygoprodeck.com/images/sets/${set.code}.jpg`);
-        let imageBlob = await request.arrayBuffer();
-        let image = Buffer.from(imageBlob);
-        await fs.writeFile(outputFile, image, 'utf-8');
-
-        await prisma.cardSet.update({
-            where: {
-                id: set.id,
-            },
-            data: {
-                image: outputFile,
-            }
-        })
+        try {
+            await fs.lstat(outputFile);
+        } catch (e) {
+            let request = await fetch(`https://images.ygoprodeck.com/images/sets/${set.code}.jpg`);
+            let imageBlob = await request.arrayBuffer();
+            let image = Buffer.from(imageBlob);
+            await fs.writeFile(outputFile, image, 'utf-8');
+        } finally {
+            await prisma.cardSet.update({
+                where: {
+                    id: set.id,
+                },
+                data: {
+                    image: '/sets/' + set.code + '/cover.png',
+                }
+            })
+            //console.log("updated", set.id, 'to',  '/sets/' + set.code + '/cover.png')
+        }
     }
 }
 
@@ -102,18 +105,18 @@ const downloadSetBatch = async (skip: number, take: number, total: number) => {
     let cycles = Math.ceil(cardCount / batchSize);
     const rateLimitResetInMillis = 1000
     let index = 0;
-    for await (const cycle of Array.from({length: cycles})){
-        let startTime = +new Date();
-        await downloadBatch(batchSize * index++, batchSize, cardCount);
-        let endTime = +new Date()
-        if (endTime - startTime < rateLimitResetInMillis) {
-            // sleep to max out rate limit
-            await new Promise((resolve) => setTimeout(resolve, 300 + endTime - startTime));
-        }
-    }
+    // for await (const cycle of Array.from({length: cycles})){
+    //     let startTime = +new Date();
+    //     await downloadBatch(batchSize * index++, batchSize, cardCount);
+    //     let endTime = +new Date()
+    //     if (endTime - startTime < rateLimitResetInMillis) {
+    //         // sleep to max out rate limit
+    //         await new Promise((resolve) => setTimeout(resolve, 300 + endTime - startTime));
+    //     }
+    // }
 
     console.info("Cards crawled. Crawling sets");
-    const setCount = await prisma.card.count();
+    const setCount = await prisma.cardSet.count();
     cycles = Math.ceil(setCount / batchSize);
     index = 0;
     for await (const cycle of Array.from({length: cycles})){

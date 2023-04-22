@@ -12,7 +12,7 @@ export const NavigationItem : React.FC<NavigationItemProps> = ({ item: {to, name
     const router = useRouter();
     const isActive = router.pathname === to ||  router.pathname.includes(to);
     return <Link href={to} className={`
-        ${isActive ? 'bg-amber-100 text-amber-900 p-1.5 px-3 rounded-lg' : "p-1.5 px-3"}
+        ${isActive ? 'bg-amber-100 text-amber-900 p-1.5 px-5 rounded-lg' : "p-1.5 px-5"}
     `}>
         {name}
     </Link>

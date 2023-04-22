@@ -8,10 +8,10 @@ export const Header = () => {
             to: "/arena",
             name: "Arena"
         },
-        {
-            to: "/deckmaster",
-            name: "Deckmaster"
-        },
+        // {
+        //     to: "/deckmaster",
+        //     name: "Deckmaster"
+        // },
     ];
 
     const navigation = useMemo(() => {
@@ -23,9 +23,9 @@ export const Header = () => {
     }, [navItems]);
 
     return <header className={'p-5 flex justify-between items-center'}>
-        <h1 className={'font-black text-4xl'}>
+        <a href={'/'} className={'font-black text-4xl'}>
             YGO Battle City
-        </h1>
+        </a>
         {navigation}
     </header>
 }

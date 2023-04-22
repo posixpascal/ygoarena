@@ -1,97 +1,77 @@
 import {trpc} from "@/utils/trpc";
-import React, {useEffect, useMemo, useRef, useState} from "react";
-import {Input} from "@/components/Input";
-import {useDebounce} from "@/hooks/useDebounce";
+import React, {Dispatch, SetStateAction, useEffect, useRef, useState} from "react";
 import {CardSet as PrismaCardSet} from "@prisma/client";
-import {CardSet} from "@/components/CardSet";
-import {Button} from "@/components/Button";
-import {SetSelectionSummary} from "@/components/SetSelectionSummary";
+import {usePaging} from "@/hooks/usePaging";
+import {animated, useTransition} from "@react-spring/web";
+import {SelectableCardSet} from "@/components/SelectableCardSet";
 
 interface SetSelectionProps {
-    onSelection: (sets: string[]) => void
+    query: string | undefined,
+    setSelected: Dispatch<SetStateAction<string[]>>,
+    selected: string[]
 }
-export const SetSelection : React.FC<SetSelectionProps> = ({ onSelection }) => {
+
+export const SetSelection: React.FC<SetSelectionProps> = ({query, selected, setSelected}) => {
+    const [sets, setSets] = useState<PrismaCardSet[]>([]);
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
-    const [selected, setSelected] = useState<string[]>([]);
-    const [name, setName] = useState('');
-    const nameQuery = useDebounce<string>(name, 300);
-    const {data, fetchNextPage, isLoading, isError} = trpc.sets.list.useInfiniteQuery({
-        name: nameQuery,
-        limit: 20
+    const {fetchNextPage, isLoading} = trpc.sets.list.useInfiniteQuery({
+        name: query,
+        limit: 20,
     }, {
         getNextPageParam: (lastPage) => lastPage.nextPage,
-        initialCursor: 1
+        initialCursor: 1,
+        onSuccess(data) {
+            setSets(() => (data?.pages || []).reduce((acc: PrismaCardSet[], page) => {
+                let items : PrismaCardSet[] = [];
+
+                // Only add new items
+                page.items.forEach(item => {
+                    if (acc.find(set => set.id === item.id)){
+                        return;
+                    }
+
+                    items.push(item);
+                });
+
+                return [...acc, ...items]
+            }, []))
+        }
+    });
+
+    // Paginate the query on scroll
+    usePaging({elementRef: loadMoreRef, onNextPage: fetchNextPage});
+    const transition = useTransition(sets, {
+        from: {scale: 0, opacity: 0},
+        enter: {scale: 1, opacity: 1},
+        leave: {scale: 1, opacity: 1},
     });
 
     const addSet = (set: PrismaCardSet) => {
-        setSelected(sets => [...sets, set.id]);
+        setSelected((sets => [...sets, set.id]));
     }
 
     const removeSet = (set: PrismaCardSet) => {
-        setSelected(sets => [...sets.filter(s => s !== set.id)]);
+        setSelected((sets => [...sets.filter(s => s !== set.id)]));
     }
 
-    const setsDisplay = useMemo(() => {
-        if (!data || !data?.pages) {
-            return <div></div>
-        }
-        // concat pages
-        const sets = nameQuery ? data!.pages![0].items : data!.pages!.reduce((acc: PrismaCardSet[], page) => {
-            return [...acc, ...page.items]
-        }, []);
-
-        if (sets.length === 0) {
-            return <div>Keine Sets gefunden</div>
-        }
-
-        return <div className={'grid grid-cols-5 gap-8'}>
-            {sets.map((set: PrismaCardSet) => {
-                return <div
-                    className={selected.includes(set.id) ? "scale-105 transition-transform" : "transition-transform"}
-                    key={set.id}>
-                    <CardSet cardSet={set} key={set.id}>
-                        <div className={'grid place-items-center h-full'}>
-                            {!selected.includes(set.id) && <Button onClick={() => addSet(set)} title={'Add'}></Button>}
-                            {selected.includes(set.id) &&
-                                <Button onClick={() => removeSet(set)} title={'Remove'}></Button>}
-                        </div>
-                    </CardSet>
-                </div>
+    return <div className={'relative h-full w-full'}>
+        <div className={'absolute inset-0 pointer-events-none grid place-items-center bg-black/70 z-10 backdrop-blur-xl transition-opacity'}
+        style={{opacity: isLoading ? 1 : 0}}>
+            Loading
+        </div>
+        <div className={'grid grid-cols-4 gap-4'}>
+            {transition((style, set: PrismaCardSet) => {
+                return <animated.div style={style} key={set.id}>
+                    <SelectableCardSet set={set} key={set.id} selected={selected}
+                                       addSet={addSet}
+                                       removeSet={removeSet}
+                    />
+                </animated.div>
             })}
         </div>
-    }, [data, selected]);
-
-    useEffect(() => {
-        if (!loadMoreRef.current) {
-            return;
-        }
-
-        const observer = new window.IntersectionObserver(([entry]) => {
-            if (entry.isIntersecting) {
-                fetchNextPage();
-            }
-        }, {root: null, threshold: 0.1});
-
-        observer.observe(loadMoreRef.current);
-        return () => {
-            observer.disconnect();
-        }
-    }, [fetchNextPage, loadMoreRef])
-
-    return <div>
-        <div className={'flex justify-between mb-10'}>
-            <Input name={'name'} type={'name'} label={'Filter by Name or Code'} placeholder={'E.g. LOB'}
-                   onInput={(ev) => setName(ev.target.value)}/>
-            <div className={'max-w-2xl flex items-center gap-8 text-right'}>
-                <SetSelectionSummary setIds={selected}/>
-                <Button title={'Create Link'} onClick={() => onSelection(selected)}>
-
-                </Button>
-            </div>
+        <div className={'text-transparent'}>
+            {JSON.stringify(sets.map(s => s.name))}
         </div>
-
-        {setsDisplay}
-
         {/*Load more sets on scroll */}
         <div className={'h-[30px]'} ref={loadMoreRef}/>
     </div>
