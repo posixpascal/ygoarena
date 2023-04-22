@@ -10,7 +10,7 @@ export const bindersRouter = router({
         })).mutation(async({input}) => {
             const {mainDeckCards, sideDeckCards, extraDeckCards} = input;
 
-            let ydkFile = [];
+            let ydkFile: string[] = [];
 
             // #main
             ydkFile.push("#main");
@@ -25,7 +25,7 @@ export const bindersRouter = router({
                     continue;
                 }
 
-                ydkFile.push(card.konamiId);
+                ydkFile.push(`${card.konamiId}`);
             }
 
             ydkFile.push('');
@@ -47,7 +47,7 @@ export const bindersRouter = router({
                     continue;
                 }
 
-                ydkFile.push(card.konamiId);
+                ydkFile.push(`${card.konamiId}`);
             }
 
             ydkFile.push('');
@@ -66,7 +66,7 @@ export const bindersRouter = router({
                     continue;
                 }
 
-                ydkFile.push(card.konamiId);
+                ydkFile.push(`${card.konamiId}`);
             }
 
             ydkFile.push('');

@@ -39,7 +39,7 @@ export const DeckMasterSelection: React.FC<DeckMasterSelectionProps> = ({setIds}
                 className = 'relative -top-10'
             }
 
-            if (cards.find(c => c.id === card.id)) {
+            if (cards.find((c: PrismaCard) => c.id === card.id)) {
                 className += ' border-2 border-yellow-300'
             }
 

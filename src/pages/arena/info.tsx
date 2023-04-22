@@ -29,7 +29,7 @@ export default function Info() {
                             <h2 className={'text-xl'}>Share this link with other players:</h2>
                             <pre><code
                                 className={'block overflow-auto max-w-xl bg-blue-100 rounded p-3 text-blue-900 mb-10'}>
-                                https://ygobattle.city{router.asPath.replace('/info', '/play')}
+                                https://arena.ygobattle.city{router.asPath.replace('/info', '/play')}
                             </code></pre>
                         </div>
                     </div>

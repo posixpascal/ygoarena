@@ -23,7 +23,7 @@ const getRandomCards = async (amount: number, cardSets: string[] = []): Promise<
         }
     });
 
-    const randomCardIds = [];
+    const randomCardIds: string[] = [];
     const maxIndex = cards.length - 1;
     const usedIndexes = new Set();
 

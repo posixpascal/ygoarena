@@ -30,7 +30,6 @@ export default function Index() {
                    <h1 className={'text-6xl my-20 font-black uppercase'}>
                        Deckmaster Mode
                    </h1>
-                    <SetSelection onSelection={handleSelection} />
                 </Container>
             </main>
         </>

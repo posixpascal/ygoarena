@@ -1,43 +1,32 @@
-import { httpBatchLink } from "@trpc/client/links/httpBatchLink";
-import { loggerLink } from "@trpc/client/links/loggerLink";
-import { createWSClient, wsLink } from "@trpc/client/links/wsLink";
-import { createTRPCNext } from "@trpc/next";
-import type { inferProcedureOutput } from "@trpc/server";
-import { NextPageContext } from "next";
+import {httpBatchLink} from "@trpc/client/links/httpBatchLink";
+import {loggerLink} from "@trpc/client/links/loggerLink";
+import {createTRPCNext} from "@trpc/next";
+import type {inferProcedureOutput} from "@trpc/server";
+import {NextPageContext} from "next";
 import getConfig from "next/config";
-import type { AppRouter } from "@/server/routers/_app";
+import type {AppRouter} from "@/server/routers/_app";
 import superjson from "superjson";
 
 // ℹ️ Type-only import:
 // https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export
 
-const { publicRuntimeConfig } = getConfig();
+const {publicRuntimeConfig} = getConfig();
 
-const { APP_URL, WS_URL } = publicRuntimeConfig;
+const {APP_URL, WS_URL} = publicRuntimeConfig;
 
 function getEndingLink(ctx: NextPageContext | undefined) {
-    if (typeof window === "undefined") {
-        return httpBatchLink({
-            url: `${APP_URL}/api/trpc`,
-            headers() {
-                if (ctx?.req) {
-                    // on ssr, forward client's headers to the server
-                    return {
-                        ...ctx.req.headers,
-                        "x-ssr": "1",
-                    };
-                }
-                return {};
-            },
-        });
-    }
-
-    const client = createWSClient({
-        url: WS_URL,
-    });
-
-    return wsLink<AppRouter>({
-        client,
+    return httpBatchLink({
+        url: `${APP_URL}/api/trpc`,
+        headers() {
+            if (ctx?.req) {
+                // on ssr, forward client's headers to the server
+                return {
+                    ...ctx.req.headers,
+                    "x-ssr": "1",
+                };
+            }
+            return {};
+        },
     });
 }
 
@@ -46,7 +35,7 @@ function getEndingLink(ctx: NextPageContext | undefined) {
  * @link https://trpc.io/docs/react#3-create-trpc-hooks
  */
 export const trpc = createTRPCNext<AppRouter>({
-    config({ ctx }) {
+    config({ctx}) {
         return {
             /**
              * @link https://trpc.io/docs/links
@@ -68,7 +57,7 @@ export const trpc = createTRPCNext<AppRouter>({
             /**
              * @link https://react-query.tanstack.com/reference/QueryClient
              */
-            queryClientConfig: { defaultOptions: { queries: { staleTime: 60 } } },
+            queryClientConfig: {defaultOptions: {queries: {staleTime: 60}}},
         };
     },
     /**

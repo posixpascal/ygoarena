@@ -17,7 +17,7 @@ export const CardSet : React.FC<CardSetProps> = ({cardSet}) => {
                 <img src={cardSet.image} width={'100%'} height={'100%'} alt={cardSet.name} />
             </div>
             <div className={'z-10'}>
-                <Image src={cardSet.image} className={'object-cover h-full w-full'} alt={cardSet.name} width={120} height={120} />
+                <img src={cardSet.image} className={'object-contain h-full w-full'} alt={cardSet.name} width={'100%'} height={'100%'} />
             </div>
             <div className={'z-10 bg-black/40 text-gray-100 font-bold text-xl backdrop-blur absolute bottom-0 left-0 right-0 min-h-12 flex items-center p-3 justify-center'}>
                 <span className={'opacity-90'}>{cardSet.name}</span>

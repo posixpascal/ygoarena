@@ -315,7 +315,7 @@ interface ProDeckResponse {
 (async () => {
     console.info("Getting list of cards")
     const response = await fetch(API_URL);
-    const {data} : ProDeckResponse = await response.json();
+    const {data} : ProDeckResponse = await response.json() as unknown as ProDeckResponse;
     console.info('Received', data.length, 'cards');
 
     console.info("Clearing DB...");

@@ -111,7 +111,7 @@ export default function Play() {
                                     <h3 className={'pt-0 mt-0 text-white'}>Tips:</h3>
                                     <ul>
                                         <li>Fusion, Synchro and XYZ cards may act as a free respin</li>
-                                        <li>The side deck can be used for "combo" cards you may hope to draw</li>
+                                        <li>The side deck can be used for combo cards you may hope to draw later</li>
                                         <li>Every card can occur more than once but not in a single draw</li>
                                     </ul>
                                 </div>

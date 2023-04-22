@@ -7,13 +7,13 @@ import {useSearchParams} from "next/navigation";
 export const RandomCards = () => {
     const {query} = useRouter();
     console.log(query);
-    const [setIDs, setSetIDs] = useState<number[]>([]);
-    const cards = trpc.cards.random.useQuery({ amount: 4, setIDs: setIDs });
+    const [setIDs, setSetIDs] = useState<string[]>([]);
+    const cards = trpc.cards.random.useQuery({ amount: 4, cardSets: setIDs });
     
     const handleClick = async () => {
         //const setIDs: number[] = []; // TODO: Fetch sets and add IDs to setIDs...
         //cards = trpc.cards.random.useQuery({ amount: 4, setIDs: setIDs }); // TODO: Fix "hook not inside body of function component" error
-        setSetIDs([...setIDs, 1])
+        setSetIDs([...setIDs])
     };
 
     if (cards.isLoading){

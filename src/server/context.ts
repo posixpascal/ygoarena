@@ -12,7 +12,6 @@ import ws from "ws";
 export const createContext = async (
     opts:
         | trpcNext.CreateNextContextOptions
-        | NodeHTTPCreateContextFnOptions<IncomingMessage, ws>
 ) => {
   const session = await getSession(opts);
   console.log("createContext for", session?.user?.name ?? "unknown user");

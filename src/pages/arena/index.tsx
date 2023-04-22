@@ -38,7 +38,7 @@ export default function Index() {
                             <SetSelection query={debouncedQuery} selected={selected} setSelected={setSelected}/>
                         </div>
                         <div className={'col-span-2'}>
-                            <SetSelectionSummary setIds={selected}/>
+                            <SetSelectionSummary readonly={false} setIds={selected}/>
                         </div>
                     </div>
                 </Container>
