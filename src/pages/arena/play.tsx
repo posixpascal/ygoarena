@@ -8,24 +8,15 @@ import {trpc} from "@/utils/trpc";
 import {Card} from "@/components/Card";
 import {SetSelectionSummary} from "@/components/SetSelectionSummary";
 import {SelectableCard} from "@/components/SelectableCard";
+import {CardRace, CardType} from "@/utils/enums";
+import {DecksCardSummary} from "@/components/DeckCardsSummary";
+import {download} from "@/utils/download";
 
-function download(filename: string, text: string) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
 
 export default function Play() {
     const router = useRouter();
     const [exporting, setExporting] = useState(false);
-    const [flippable, setFlippable] = useState(true);
+    const [flippable, setFlippable] = useState(false);
     const {sets} = router.query;
     const cardSets = (sets! as string).split('|');
 
@@ -52,6 +43,14 @@ export default function Play() {
     }
 
     const addMain = (card: PrismaCard) => {
+        if (card.type === CardType.FUSION_MONSTER || card.type.includes("FUSION") || card.type.includes("SYNCHRO") || card.type.includes("XYZ")){
+            updateDeck((deck) => ({
+                ...deck,
+                extra: [...deck.extra, card]
+            }))
+            return;
+        }
+
         // TODO: add check for fusion monsters
         updateDeck((deck) => ({
             ...deck,
@@ -87,7 +86,8 @@ export default function Play() {
                     <div className={'grid grid-cols-7 gap-8'}>
                         <div className={'col-span-5'}>
                             <div className={'p-5'}>
-                                <Button onClick={() => setFlippable(!flippable)} title={flippable ? "Cards hidden" : `Cards always visible`}></Button>
+                                <Button onClick={() => setFlippable(!flippable)}
+                                        title={flippable ? "Cards hidden" : `Cards always visible`}></Button>
                             </div>
                             <div className={'px-5 gap-8 flex w-full'}>
                                 {(data || []).map(card => {
@@ -128,6 +128,7 @@ export default function Play() {
                                         <strong>
                                             Main Deck ({deck.main.length} / 40)
                                         </strong>
+                                        <DecksCardSummary cards={deck.main} />
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['main'].map((mainDeckCard, index) => {
                                                 return <Card card={mainDeckCard} key={mainDeckCard.id + index}/>
@@ -140,6 +141,8 @@ export default function Play() {
                                         <strong>
                                             Side Deck ({deck.side.length} / 15)
                                         </strong>
+                                        <DecksCardSummary cards={deck.side} />
+
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['side'].map((sideDeckCard, index) => {
                                                 return <Card card={sideDeckCard} key={sideDeckCard.id + index}/>
@@ -151,6 +154,8 @@ export default function Play() {
                                         <strong>
                                             Extra Deck ({deck.extra.length} / 15)
                                         </strong>
+                                        <DecksCardSummary cards={deck.extra} />
+
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['extra'].map((extraDeckCard, index) => {
                                                 return <Card card={extraDeckCard} key={extraDeckCard.id + index}/>

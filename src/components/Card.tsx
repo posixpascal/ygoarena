@@ -11,7 +11,7 @@ export interface CardProps {
 export const Card : React.FC<CardProps> = ({flippable = false, card}) => {
     const [flip, setFlipped] = useState(false);
 
-    return <div>
+    return <div className={'h-[400px]'}>
         <div onClick={() => setFlipped(true)}>
             <img src={'/images/CardBack.jpg'} className={`${(!flip && flippable) ? '' : 'hidden'} ${flippable ? 'h-[400px]' : ''} object-contain`} alt={card.name} width={'100%'} />
         </div>
