@@ -19,7 +19,6 @@ const envSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string(),
   NODE_ENV: z.enum(["development", "test", "production"]),
   SECRET_COOKIE_PASSWORD: z.string().length(32),
-  WS_URL: z.string().url().startsWith("ws"),
 });
 
 const env = envSchema.safeParse(process.env);
