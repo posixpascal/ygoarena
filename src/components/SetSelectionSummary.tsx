@@ -14,7 +14,7 @@ type SetsState = { name: string; id: string; image: string; _count: CardSetCount
 export const SetSelectionSummary: React.FC<SetSelectionSummaryProps> = ({readonly = false, setIds}) => {
     const router = useRouter();
     const [sets, setSets] = useState<SetsState>([]);
-    const {data} = trpc.sets.summary.useQuery({
+    const {data, isLoading} = trpc.sets.summary.useQuery({
         setIds,
     }, {
         onSuccess(data) {
@@ -31,7 +31,8 @@ export const SetSelectionSummary: React.FC<SetSelectionSummaryProps> = ({readonl
 
     return <div className={`${readonly ? '' : 'h-full'} bg-slate-700`}>
         {!readonly && <div className={'top-0 sticky bg-black/20 p-5 backdrop-blur-xl py-8 '}>
-            <Button onClick={handleSelection} title={`Continue with ${setIds.length} Sets (${data?.totalCards || 0} cards)`} className={'w-full'}></Button>
+            <Button disabled={setIds.length === 0} onClick={handleSelection} title={
+                isLoading ? "Loading..." : `Continue with ${setIds.length} Sets (${data?.totalCards} cards)`} className={'w-full'}></Button>
         </div>}
         <div>
             {sets.map(set => {

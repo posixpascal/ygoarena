@@ -69,9 +69,6 @@ export const SetSelection: React.FC<SetSelectionProps> = ({query, selected, setS
                 </animated.div>
             })}
         </div>
-        <div className={'text-transparent'}>
-            {JSON.stringify(sets.map(s => s.name))}
-        </div>
         {/*Load more sets on scroll */}
         <div className={'h-[30px]'} ref={loadMoreRef}/>
     </div>
