@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    script: 'echo',
+    script: 'pnpm run start',
     watch: '.'
   }],
 
@@ -12,7 +12,7 @@ module.exports = {
       repo : 'git@github.com:posixpascal/ygoarena.git',
       path : '/opt/ygoarena/',
       'pre-deploy-local': '',
-      'post-deploy' : 'pm2 reload ecosystem.config.js --env production',
+      'post-deploy' : 'pnpm run build && pm2 reload ecosystem.config.js --env production',
       'pre-setup': ''
     }
   }
