@@ -2,7 +2,7 @@ module.exports = {
   apps : [{
     script: 'pnpm run start',
     watch: '.',
-    shared: ['.env']
+    shared: ['.env', 'public', 'dev.db']
   }],
 
   deploy : {
