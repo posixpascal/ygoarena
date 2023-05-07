@@ -62,7 +62,8 @@ export const setsRouter = router({
                 id: true,
                 name: true,
                 image: true,
-                _count: true
+                _count: true,
+                code: true
             }
         });
 

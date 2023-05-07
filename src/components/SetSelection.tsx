@@ -40,10 +40,10 @@ export const SetSelection: React.FC<SetSelectionProps> = ({query, selected, setS
 
     // Paginate the query on scroll
     usePaging({elementRef: loadMoreRef, onNextPage: fetchNextPage});
-    const transition = useTransition(sets, {
+    const transition = useTransition(isLoading ? [] : sets, {
         from: {scale: 0, opacity: 0},
         enter: {scale: 1, opacity: 1},
-        leave: {scale: 1, opacity: 1},
+        leave: {scale: 0, opacity: 0},
     });
 
     const addSet = (set: PrismaCardSet) => {
@@ -54,15 +54,17 @@ export const SetSelection: React.FC<SetSelectionProps> = ({query, selected, setS
         setSelected((sets => [...sets.filter(s => s !== set.id)]));
     }
 
-    return <div className={'relative h-full w-full'}>
-        <div className={'absolute inset-0 pointer-events-none grid place-items-center bg-black/70 z-10 backdrop-blur-xl transition-opacity'}
-        style={{opacity: isLoading ? 1 : 0}}>
+    if (isLoading){
+        return <div>
             Loading
         </div>
+    }
+
+    return <div className={'relative h-full w-full'}>
         <div className={'grid grid-cols-4 gap-4'}>
-            {transition((style, set: PrismaCardSet) => {
-                return <animated.div style={style} key={set.id}>
-                    <SelectableCardSet set={set} key={set.id} selected={selected}
+            {sets.map((set: PrismaCardSet) => {
+                return <animated.div className={'h-full bg-white flex items-center justify-center rounded-xl'} key={set.id}>
+                    <SelectableCardSet set={set} selected={selected}
                                        addSet={addSet}
                                        removeSet={removeSet}
                     />

@@ -19,20 +19,21 @@ export const DecksCardSummary: React.FC<DeckCardsSummaryProps> = ({cards}) => {
         return card.type === CardType.SPELL_CARD;
     }).length;
 
-    return <div className={"flex gap-12 text-sm text-blue-300"}>
+    return <div className={"flex gap-4 text-sm text-sky-300 mb-3"}>
         <div className={"flex gap-1"}>
-            <span>{monsterCount}</span>
-            Monsters
+            <span>{monsterCount}</span> Monsters
         </div>
-
-        <div className={"flex gap-1"}>
-            <span>{spellCount}</span>
-            Spells
+        <div>
+            &bull;
         </div>
-
         <div className={"flex gap-1"}>
-            <span>{trapCount}</span>
-            Traps
+            <span>{spellCount}</span> Spells
+        </div>
+        <div>
+            &bull;
+        </div>
+        <div className={"flex gap-1"}>
+            <span>{trapCount}</span> Traps
         </div>
     </div>;
 }

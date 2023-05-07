@@ -14,22 +14,16 @@ import {useRouter} from "next/router";
 export default function Index() {
     const router = useRouter();
 
-    const handleSelection = (setIds: string[]) => {
-        const queryString = new URLSearchParams();
-        queryString.append('sets', setIds.join('|'));
-        router.push('/deckmaster/info?' + queryString.toString())
-    }
-
     return (
         <>
             <Head>
-                <title>DeckMaster Setup | ygobattle.city</title>
+                <title>Actions Setup | ygobattle.city</title>
             </Head>
             <main >
                 <Container>
-                   <h1 className={'text-6xl my-20 font-black uppercase'}>
+                    <h1 className={'text-6xl my-20 font-black uppercase'}>
                         Coming soon
-                   </h1>
+                    </h1>
                 </Container>
             </main>
         </>

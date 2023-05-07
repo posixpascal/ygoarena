@@ -22,7 +22,8 @@ export const cardsRouter = router({
 
             const shuffledCards = cards
                 .map(cardInSet => cardInSet.cardId)
-                .sort(() => Math.random() > 0.5 ? 1 : -1);
+                .sort(() => Math.random() > 0.5 ? 1 : -1)
+                .slice(0, amount)
 
             return await prisma.card.findMany({
                 where: {
@@ -30,7 +31,6 @@ export const cardsRouter = router({
                         in: shuffledCards
                     }
                 },
-                take: amount
             })
         })
 });

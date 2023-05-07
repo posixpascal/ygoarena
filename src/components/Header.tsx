@@ -22,7 +22,7 @@ export const Header = () => {
         </nav>
     }, [navItems]);
 
-    return <header className={'p-5 flex justify-between items-center'}>
+    return <header className={'min-h-[85px] shadow-xl px-5 border-b border-b-black/20 flex bg-white w-full justify-between items-center'}>
         <a href={'/'} className={'font-black text-4xl'}>
             YGO Battle City
         </a>

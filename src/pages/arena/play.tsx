@@ -8,7 +8,7 @@ import {trpc} from "@/utils/trpc";
 import {Card} from "@/components/Card";
 import {SetSelectionSummary} from "@/components/SetSelectionSummary";
 import {SelectableCard} from "@/components/SelectableCard";
-import {CardRace, CardType} from "@/utils/enums";
+import {CardType} from "@/utils/enums";
 import {DecksCardSummary} from "@/components/DeckCardsSummary";
 import {download} from "@/utils/download";
 
@@ -19,13 +19,35 @@ export default function Play() {
     const [flippable, setFlippable] = useState(false);
     const {sets} = router.query;
     const cardSets = (sets! as string).split('|');
-
+    const [hidden, setHidden] = useState<boolean>(true);
+    const [randomCards, setRandomCards] = useState<PrismaCard[]>([]);
     const exporter = trpc.binders.exporter.useMutation();
     const {data, isLoading, refetch} = trpc.cards.random.useQuery({
         cardSets,
         amount: 4
     }, {
-        refetchOnWindowFocus: false
+        refetchOnWindowFocus: false,
+        onSuccess(data){
+            setHidden(true);
+            setRandomCards(data);
+            const imageLoaders = data.map((card) => {
+                return new Promise((resolve, reject) => {
+                    const image = new Image();
+                    image.src = card.image;
+                    image.addEventListener('load', () => {
+                        resolve(true);
+                    });
+
+                    image.addEventListener('error', () => {
+                        refetch();
+                    })
+                });
+            });
+
+            Promise.all(imageLoaders).then(() => {
+                setHidden(false);
+            })
+        }
     });
 
     const [deck, updateDeck] = useState<Record<string, PrismaCard[]>>({
@@ -36,6 +58,10 @@ export default function Play() {
 
 
     const addSide = (card: PrismaCard) => {
+        if (hidden){
+            return;
+        }
+
         updateDeck((deck) => ({
             ...deck,
             side: [...deck.side, card],
@@ -43,7 +69,11 @@ export default function Play() {
     }
 
     const addMain = (card: PrismaCard) => {
-        if (card.type === CardType.FUSION_MONSTER || card.type.includes("FUSION") || card.type.includes("SYNCHRO") || card.type.includes("XYZ")){
+        if (hidden){
+            return;
+        }
+
+        if (card.type === CardType.FUSION_MONSTER || card.type.includes("FUSION") || card.type.includes("SYNCHRO") || card.type.includes("XYZ") || card.type.includes("LINK")) {
             updateDeck((deck) => ({
                 ...deck,
                 extra: [...deck.extra, card]
@@ -69,12 +99,17 @@ export default function Play() {
             sideDeckCards: deck.side.map(card => card.id),
             extraDeckCards: deck.extra.map(card => card.id)
         }).then((data) => {
+            const name = prompt("Enter Deck Name");
             setExporting(false);
-            download('ygo-arena.ydk', data);
+            download((name || "ygo-arena") + '.ydk', data);
         })
     }
 
     const canExport = deck.main.length >= 40;
+    const isLessThan3 = (card) => {
+        const allCards = [...deck.main, ...deck.side, ...deck.extra];
+        return (allCards.filter(s => s.id === card.id).length < 3);
+    }
 
     return (
         <>
@@ -85,30 +120,27 @@ export default function Play() {
                 <Container>
                     <div className={'grid grid-cols-7 gap-8'}>
                         <div className={'col-span-5'}>
-                            <div className={'p-5'}>
-                                <Button onClick={() => setFlippable(!flippable)}
-                                        title={flippable ? "Cards hidden" : `Cards always visible`}></Button>
-                            </div>
-                            <div className={'px-5 gap-8 flex w-full'}>
-                                {(data || []).map(card => {
-                                    return <div key={card.id} className={'col-span-1'}>
-                                        <SelectableCard
-                                            flippable={flippable}
-                                            canAddSide={deck['side'].length < 15}
-                                            canAddMain={deck['main'].length < 40}
-                                            canAddExtra={deck['extra'].length < 15}
-                                            addSide={addSide}
-                                            addMain={addMain}
-                                            card={card}/>
-                                    </div>
-                                })}
+                            <div className={'px-5 gap-8 grid grid-cols-4 flex w-full'}>
+                                    {randomCards.map((card, index) => {
+                                        return <div key={card.id} className={'col-span-1'}>
+                                            <SelectableCard
+                                                index={index}
+                                                hidden={hidden}
+                                                flippable={flippable}
+                                                canAddSide={isLessThan3(card) && deck['side'].length < 15}
+                                                canAddMain={isLessThan3(card) && deck['main'].length < 40}
+                                                canAddExtra={isLessThan3(card) && deck['extra'].length < 15}
+                                                addSide={addSide}
+                                                addMain={addMain}
+                                                card={card}/>
+                                        </div>
+                                    })}
                             </div>
 
-
                             <div className={'p-5'}>
-                                <div className={'prose-xl text-white'}>
+                                <div className={'prose-xl text-slate-900'}>
                                     <hr/>
-                                    <h3 className={'pt-0 mt-0 text-white'}>Tips:</h3>
+                                    <h3 className={'pt-0 mt-0 text-slate-900'}>Tips:</h3>
                                     <ul>
                                         <li>Fusion, Synchro and XYZ cards may act as a free respin</li>
                                         <li>The side deck can be used for combo cards you may hope to draw later</li>
@@ -118,8 +150,8 @@ export default function Play() {
                             </div>
                         </div>
                         <div className={'col-span-2'}>
-                            <div className={'bg-slate-700'}>
-                                <div className={'top-0 sticky bg-black/20 p-5 backdrop-blur-xl py-8 '}>
+                            <div className={'bg-gray-800 text-sky-200'}>
+                                <div className={'top-0 sticky bg-gray-900 p-5 backdrop-blur-xl py-8 '}>
                                     <Button onClick={exportDeck} title={exporting ? "Loading..." : `Export Deck`}
                                             className={`w-full ${canExport ? '' : ' opacity-50 grayscale'}`}></Button>
                                 </div>
@@ -128,10 +160,12 @@ export default function Play() {
                                         <strong>
                                             Main Deck ({deck.main.length} / 40)
                                         </strong>
-                                        <DecksCardSummary cards={deck.main} />
+                                        <DecksCardSummary cards={deck.main}/>
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['main'].map((mainDeckCard, index) => {
-                                                return <Card card={mainDeckCard} key={mainDeckCard.id + index}/>
+                                                return <div className={'min-h-[65px]'} key={String(deck.length) + mainDeckCard.id + index}>
+                                                    <Card flippable={false} flipped={true} card={mainDeckCard} key={mainDeckCard.id + index}/>
+                                                </div>
                                             })}
                                         </div>
                                     </div>
@@ -141,11 +175,13 @@ export default function Play() {
                                         <strong>
                                             Side Deck ({deck.side.length} / 15)
                                         </strong>
-                                        <DecksCardSummary cards={deck.side} />
+                                        <DecksCardSummary cards={deck.side}/>
 
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['side'].map((sideDeckCard, index) => {
-                                                return <Card card={sideDeckCard} key={sideDeckCard.id + index}/>
+                                                return <div className={'min-h-[65px]'} key={String(deck.length) + sideDeckCard.id + index}>
+                                                    <Card flippable={false} flipped={true} card={sideDeckCard} key={sideDeckCard.id + index}/>
+                                                </div>
                                             })}
                                         </div>
                                     </div>
@@ -154,19 +190,23 @@ export default function Play() {
                                         <strong>
                                             Extra Deck ({deck.extra.length} / 15)
                                         </strong>
-                                        <DecksCardSummary cards={deck.extra} />
+                                        <DecksCardSummary cards={deck.extra}/>
 
                                         <div className={'grid grid-cols-8 gap-2'}>
                                             {deck['extra'].map((extraDeckCard, index) => {
-                                                return <Card card={extraDeckCard} key={extraDeckCard.id + index}/>
+                                                return <div className={'min-h-[65px]'} key={String(deck.length) + extraDeckCard.id + index}>
+                                                    <Card flippable={false} flipped={true} card={extraDeckCard} key={extraDeckCard.id + index}/>
+                                                </div>
                                             })}
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div className={'mt-8'}>
 
-                            <h2 className={'text-xl font-bold mt-5 py-3'}>Sets:</h2>
-                            <SetSelectionSummary readonly={true} setIds={cardSets}/>
+                            </div>
+                            <SetSelectionSummary setSelected={() => {
+                            }} readonly={true} setIds={cardSets}/>
                         </div>
                     </div>
                 </Container>

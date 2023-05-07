@@ -34,12 +34,12 @@ export const SelectableCardSet: React.FC<SelectableCardSetProps> = ({selected, s
         addSet(set);
     }
 
-    return <animated.div style={style} className={'cursor-pointer will-change-transform relative'}
+    return <animated.div style={style} className={'cursor-pointer will-change-transform h-full items-center flex justify-center w-full relative'}
                          onClick={toggleSelection}>
         <CardSet cardSet={set}/>
-        {isSelected && <animated.div style={checkStyle} className='will-change-transform z-10 absolute right-3 top-3 z-20 text-green-400'>
+        {isSelected && <animated.div style={checkStyle} className='will-change-transform z-10 absolute right-1 top-1 z-20 text-green-400'>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5}
-                 stroke="currentColor" className="w-8 h-8">
+                 stroke="currentColor" className="w-10 h-10">
                 <path strokeLinecap="round" strokeLinejoin="round"
                       d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
