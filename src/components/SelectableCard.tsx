@@ -14,9 +14,10 @@ interface SelectableCardProps {
     canAddExtra: boolean;
     flippable: boolean;
     hidden: boolean;
+    index?:number;
 }
 
-export const SelectableCard: React.FC<SelectableCardProps> = ({index, hidden, canAddMain, canAddSide, canAddExtra, addMain, addSide, card}) => {
+export const SelectableCard: React.FC<SelectableCardProps> = ({index = 0, hidden, canAddMain, canAddSide, canAddExtra, addMain, addSide, card}) => {
     const isExtraDeckCard = card.type.includes("FUSION") || card.type.includes("XYZ") || card.type.includes("SYNCHRO");
 
     return <animated.div  className={'cursor-pointer will-change-transform relative w-full h-full'}>

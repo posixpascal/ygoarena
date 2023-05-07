@@ -106,7 +106,7 @@ export default function Play() {
     }
 
     const canExport = deck.main.length >= 40;
-    const isLessThan3 = (card) => {
+    const isLessThan3 = (card: any) => {
         const allCards = [...deck.main, ...deck.side, ...deck.extra];
         return (allCards.filter(s => s.id === card.id).length < 3);
     }

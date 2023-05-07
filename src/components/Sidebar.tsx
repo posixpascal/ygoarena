@@ -37,7 +37,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ to, titleClassName = 'text-lg', soo
     const router = useRouter();
     const isActive = router.pathname.includes(to!) && to && to !== '/';
     const expandTransition = useSpring({opacity: expand ? 1 : 0});
-    return <Link href={to} className={`flex items-center gap-3 min-w-[250px] p-3 px-5 w-full overflow-hidden ${soon ? 'opacity-50 grayscale pointer-events-none' : ''} ${isActive ? 'bg-sky-200/50' : ''}`}
+    return <Link href={to!} className={`flex items-center gap-3 min-w-[250px] p-3 px-5 w-full overflow-hidden ${soon ? 'opacity-50 grayscale pointer-events-none' : ''} ${isActive ? 'bg-sky-200/50' : ''}`}
 
     >
         <div className={'w-16'}>

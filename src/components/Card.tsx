@@ -6,12 +6,12 @@ export interface CardProps {
     card: PrismaCard,
     flippable?: boolean,
     flipped?: boolean;
-    index: number;
+    index?: number;
 }
 
 // TODO: Add Rare/SR/UR effect
 // TODO: cleanup this mess :D
-export const Card: React.FC<CardProps> = ({index, flipped, flippable = false, card}) => {
+export const Card: React.FC<CardProps> = ({index = 0, flipped, flippable = false, card}) => {
     const [flip, setFlipped] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
     const {transform, opacity} = useSpring({

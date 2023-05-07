@@ -38,7 +38,7 @@ export const SetSelectionSummary: React.FC<SetSelectionSummaryProps> = ({
     }, 0)
 
     const removeSet = (set: PrismaCardSet) => {
-        setSelected((sets => [...sets.filter(s => s !== set.id)]));
+        setSelected(((sets: any) => [...sets.filter((s:any) => s !== set.id)]));
     }
 
 
@@ -61,7 +61,7 @@ export const SetSelectionSummary: React.FC<SetSelectionSummaryProps> = ({
                                 {set._count.cards} Cards
                         </span>
                     </div>
-                    {!readonly && <button className={'text-red-500'} onClick={() => removeSet(set)}>
+                    {!readonly && <button className={'text-red-500'} onClick={() => removeSet(set as any)}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                              className="w-6 h-6">
                             <path fillRule="evenodd"
