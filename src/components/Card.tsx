@@ -21,7 +21,8 @@ export const Card: React.FC<CardProps> = ({index = 0, flipped, flippable = false
         config: {mass: 5, tension: 500, friction: 80},
     })
 
-    return <div>
+    return <div    onMouseLeave={() => setShowOverlay(false)}
+                   onMouseEnter={() => setShowOverlay(true)}>
         {showOverlay && <div className={`fixed z-20 isolation-auto bg-black/80 p-5 text-white isolate top-0 left-0`}>
             {card.desc}
         </div>}
@@ -37,8 +38,7 @@ export const Card: React.FC<CardProps> = ({index = 0, flipped, flippable = false
                 rotateY: '180deg',
             }}>
                 <img
-                    onMouseLeave={() => setShowOverlay(false)}
-                    onMouseEnter={() => setShowOverlay(true)} src={card.image} className={`object-contain`}
+                  src={card.image} className={`object-contain`}
                      alt={card.name} width={'100%'}/>
             </animated.div>
         </div>
